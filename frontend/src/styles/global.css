@@ -1,0 +1,64 @@
+/* ═══════════════════════════════════════════════
+   OC Cargo Claw — Design System
+   Theme: Industrial Command Center (Dark)
+   ═══════════════════════════════════════════════ */
+
+:root {
+  /* Background layers */
+  --bg-base: #080c14;
+  --bg-surface: #0d1220;
+  --bg-elevated: #131a2b;
+  --bg-overlay: rgba(8, 12, 20, 0.92);
+
+  /* Accent palette */
+  --color-crane: #e8593c;
+  --color-ocean: #3b8bd4;
+  --color-safety: #5dcaa5;
+  --color-agv: #f2a623;
+  --color-exec: #9b59b6;
+
+  /* Text */
+  --text-primary: #d0d8e8;
+  --text-secondary: #7888a0;
+  --text-muted: #445566;
+
+  /* Borders */
+  --border-subtle: rgba(59, 139, 212, 0.12);
+  --border-medium: rgba(59, 139, 212, 0.25);
+
+  /* Spacing */
+  --panel-width: 280px;
+  --topbar-height: 48px;
+
+  /* Typography */
+  --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+  --font-sans: 'Inter', -apple-system, sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-medium); }
+
+/* Canvas reset */
+canvas { display: block; outline: none; }
+
+/* Utility classes */
+.mono { font-family: var(--font-mono); }
+.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

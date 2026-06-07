@@ -1,0 +1,30 @@
+.container {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  display: flex;
+  gap: 8px;
+  z-index: 5;
+}
+
+.card {
+  padding: 8px 14px;
+  background: var(--bg-overlay);
+  border: 1px solid;
+  border-radius: 6px;
+  backdrop-filter: blur(10px);
+  min-width: 90px;
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+
+.value {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 700;
+}

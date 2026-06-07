@@ -1,0 +1,45 @@
+# ═══════════════════════════════════════════════
+# OC Cargo Claw — Docker Compose
+# Run: docker compose up --build
+# ═══════════════════════════════════════════════
+
+version: "3.9"
+
+services:
+  # ── Frontend (Vite + React + Three.js) ──
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    restart: unless-stopped
+
+  # ── Backend (TODO: Phase 3) ──
+  # api:
+  #   build: ./backend
+  #   ports:
+  #     - "4000:4000"
+  #   environment:
+  #     - DATABASE_URL=postgresql://cargo:cargo@db:5432/cargoclaw
+  #     - REDIS_URL=redis://redis:6379
+  #   depends_on:
+  #     - db
+  #     - redis
+  #
+  # db:
+  #   image: postgres:16-alpine
+  #   environment:
+  #     POSTGRES_USER: cargo
+  #     POSTGRES_PASSWORD: cargo
+  #     POSTGRES_DB: cargoclaw
+  #   volumes:
+  #     - pgdata:/var/lib/postgresql/data
+  #   ports:
+  #     - "5432:5432"
+  #
+  # redis:
+  #   image: redis:7-alpine
+  #   ports:
+  #     - "6379:6379"
+
+# volumes:
+#   pgdata:

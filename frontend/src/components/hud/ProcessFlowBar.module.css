@@ -1,0 +1,133 @@
+.bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 8px 16px 10px;
+  background: linear-gradient(to top, var(--bg-overlay) 75%, transparent);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--border-subtle);
+  pointer-events: auto;
+  z-index: 5;
+}
+
+.header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.title {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  color: var(--text-secondary);
+}
+
+.sub {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-muted);
+}
+
+.track {
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+}
+
+.stage {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 7px 4px 6px;
+  background: rgba(255, 255, 255, 0.02);
+  border-top: 2px solid var(--c);
+  border-radius: 3px;
+  position: relative;
+  overflow: hidden;
+}
+
+.stage::after {
+  /* faint owner-colour wash */
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--c);
+  opacity: 0.06;
+  pointer-events: none;
+}
+
+.count {
+  font-family: var(--font-mono);
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.05;
+  color: var(--c);
+  font-variant-numeric: tabular-nums;
+}
+
+.name {
+  font-size: 10px;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.zone {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+}
+
+.arrow {
+  display: flex;
+  align-items: center;
+  color: var(--text-muted);
+  font-size: 14px;
+  flex: 0 0 auto;
+}
+
+.pivot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  padding: 0 4px;
+}
+
+.ship {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.pivotLabel {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  color: var(--color-ocean);
+  letter-spacing: 1px;
+}
+
+.phases {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 5px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+}
+
+.exportTag {
+  color: var(--color-safety);
+  letter-spacing: 1px;
+}
+
+.importTag {
+  color: var(--color-ocean);
+  letter-spacing: 1px;
+}
