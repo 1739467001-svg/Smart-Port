@@ -111,8 +111,8 @@ export const useAppStore = create<AppState>((set) => ({
   navigateTo: (scene, objectId) =>
     set({ isTransitioning: true, currentScene: scene, selectedObjectId: objectId ?? null }),
 
-  // Theme
-  theme: 'night',
+  // Theme — default to day; night is toggled from the top bar
+  theme: 'day',
   toggleTheme: () => set((s) => ({ theme: s.theme === 'night' ? 'day' : 'night' })),
   setTheme: (theme) => set({ theme }),
 
