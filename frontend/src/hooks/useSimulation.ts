@@ -14,6 +14,7 @@ export function useSimulation() {
   const addAgentMessage = useAppStore((s) => s.addAgentMessage);
   const updateAgentStatus = useAppStore((s) => s.updateAgentStatus);
   const tickProcess = useAppStore((s) => s.tickProcess);
+  const bumpAgentMetrics = useAppStore((s) => s.bumpAgentMetrics);
   const tickRef = useRef(0);
 
   useEffect(() => {
@@ -25,6 +26,8 @@ export function useSimulation() {
 
       // Advance the container lifecycle pipeline (drives throughputTEU)
       tickProcess();
+      // Nudge per-agent metrics so the agent detail pages stay live
+      bumpAgentMetrics();
 
       // Update metrics with slight random fluctuation
       updateMetrics({
@@ -65,5 +68,5 @@ export function useSimulation() {
     }, 2000);
 
     return () => clearInterval(interval);
-  }, [simRunning, updateMetrics, addAgentMessage, updateAgentStatus, tickProcess]);
+  }, [simRunning, updateMetrics, addAgentMessage, updateAgentStatus, tickProcess, bumpAgentMetrics]);
 }

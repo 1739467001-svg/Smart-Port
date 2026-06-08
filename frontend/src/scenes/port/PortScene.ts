@@ -417,16 +417,19 @@ function buildAGVs(ctx: SceneContext, layout: PortLayout) {
 // ── OC Agent Markers ──
 function buildOCMarkers(ctx: SceneContext) {
   const { root } = ctx;
-  const ocPositions: Array<{ name: string; color: number; pos: [number, number, number] }> = [
-    { name: '箱单OC', color: 0x3b8bd4, pos: [145, 30, 85] },
-    { name: '堆叠OC', color: 0xe8593c, pos: [0, 78, -88] },
-    { name: '安全OC', color: 0x5dcaa5, pos: [-105, 30, 65] },
-    { name: '调度OC', color: 0xf2a623, pos: [0, 52, 0] },
-    { name: '指令OC', color: 0x9b59b6, pos: [105, 30, -45] },
+  // Each marker maps to an OC agent — clicking it opens that agent's detail page.
+  const ocPositions: Array<{ id: string; name: string; color: number; pos: [number, number, number] }> = [
+    { id: 'data-agent', name: '箱单OC', color: 0x3b8bd4, pos: [145, 30, 85] },
+    { id: 'lobster-agent', name: '堆叠OC', color: 0xe8593c, pos: [0, 78, -88] },
+    { id: 'safety-agent', name: '安全OC', color: 0x5dcaa5, pos: [-105, 30, 65] },
+    { id: 'dispatch-agent', name: '调度OC', color: 0xf2a623, pos: [0, 52, 0] },
+    { id: 'exec-agent', name: '指令OC', color: 0x9b59b6, pos: [105, 30, -45] },
   ];
 
   ocPositions.forEach((oc, i) => {
     const group = new THREE.Group();
+    group.userData = { id: oc.id, type: 'agent' };
+
     const ring = new THREE.Mesh(
       new THREE.TorusGeometry(3.5, 0.25, 8, 32),
       new THREE.MeshStandardMaterial({
@@ -441,6 +444,14 @@ function buildOCMarkers(ctx: SceneContext) {
       new THREE.MeshStandardMaterial({ color: oc.color, emissive: oc.color, emissiveIntensity: 3 })
     ));
 
+    // Outer pulse ring — telegraphs "clickable"
+    const pulse = new THREE.Mesh(
+      new THREE.TorusGeometry(5.2, 0.12, 8, 40),
+      new THREE.MeshBasicMaterial({ color: oc.color, transparent: true, opacity: 0.5 })
+    );
+    pulse.rotation.x = Math.PI / 2;
+    group.add(pulse);
+
     const beam = new THREE.Mesh(
       new THREE.CylinderGeometry(0.12, 0.12, 22, 4),
       new THREE.MeshStandardMaterial({
@@ -450,12 +461,23 @@ function buildOCMarkers(ctx: SceneContext) {
     beam.position.y = -11;
     group.add(beam);
 
+    // Invisible larger hit target so the marker is easy to click
+    const hit = new THREE.Mesh(
+      new THREE.SphereGeometry(8, 8, 8),
+      new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false })
+    );
+    group.add(hit);
+
     group.position.set(...oc.pos);
     root.add(group);
+    ctx.registerClickable(group);
 
     ctx.addAnimation(`oc-marker-${i}`, (t) => {
       group.position.y = oc.pos[1] + Math.sin(t * 1.3 + i * 1.1) * 1.5;
       group.rotation.y = t * 0.4 + i;
+      const s = 1 + Math.sin(t * 2 + i) * 0.25;
+      pulse.scale.set(s, s, s);
+      (pulse.material as THREE.MeshBasicMaterial).opacity = 0.5 - Math.sin(t * 2 + i) * 0.3;
     });
   });
 }

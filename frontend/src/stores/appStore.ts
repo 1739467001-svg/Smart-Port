@@ -33,6 +33,12 @@ interface AppState {
   selectAgent: (id: string | null) => void;
   addAgentMessage: (msg: AgentMessage) => void;
   updateAgentStatus: (id: string, status: OCAgent['status'], lastAction?: string) => void;
+  bumpAgentMetrics: () => void;
+
+  // Agent detail page (opened by clicking an OC marker)
+  agentDetailId: string | null;
+  openAgentDetail: (id: string) => void;
+  closeAgentDetail: () => void;
 
   // Port metrics
   metrics: PortMetrics;
@@ -58,7 +64,7 @@ const initialAgents: OCAgent[] = [
     name: '箱单 OC',
     role: 'Data Agent',
     status: 'active',
-    metrics: { processed: 0, pending: 0 },
+    metrics: { processed: 2847, pending: 12 },
   },
   {
     id: 'lobster-agent',
@@ -66,7 +72,7 @@ const initialAgents: OCAgent[] = [
     name: '堆叠 OC',
     role: 'Lobster Agent',
     status: 'computing',
-    metrics: { iterations: 0, bestUtilization: 0 },
+    metrics: { iterations: 12847, bestUtilization: 87.3 },
   },
   {
     id: 'safety-agent',
@@ -74,7 +80,7 @@ const initialAgents: OCAgent[] = [
     name: '安全 OC',
     role: 'Safety Agent',
     status: 'monitoring',
-    metrics: { checksCompleted: 0, vetoes: 0 },
+    metrics: { checksCompleted: 1563, vetoes: 4 },
   },
   {
     id: 'dispatch-agent',
@@ -82,7 +88,7 @@ const initialAgents: OCAgent[] = [
     name: '调度 OC',
     role: 'Dispatch Agent',
     status: 'active',
-    metrics: { tasksAssigned: 0, efficiency: 0 },
+    metrics: { tasksAssigned: 892, efficiency: 94.2 },
   },
   {
     id: 'exec-agent',
@@ -90,7 +96,7 @@ const initialAgents: OCAgent[] = [
     name: '指令 OC',
     role: 'Execution Agent',
     status: 'standby',
-    metrics: { instructionsSent: 0, successRate: 100 },
+    metrics: { instructionsSent: 1342, successRate: 99.6 },
   },
 ];
 
@@ -135,6 +141,39 @@ export const useAppStore = create<AppState>((set) => ({
         a.id === id ? { ...a, status, lastAction, lastActionTime: Date.now() } : a
       ),
     })),
+  bumpAgentMetrics: () =>
+    set((s) => ({
+      agents: s.agents.map((a) => {
+        const m = { ...a.metrics };
+        const n = (k: string) => (m[k] as number) ?? 0;
+        switch (a.type) {
+          case 'data':
+            m.processed = n('processed') + Math.floor(Math.random() * 4);
+            m.pending = Math.max(0, 8 + Math.floor(Math.random() * 10));
+            break;
+          case 'lobster':
+            m.iterations = n('iterations') + Math.floor(20 + Math.random() * 180);
+            m.bestUtilization = +(85.5 + Math.random() * 3).toFixed(1);
+            break;
+          case 'safety':
+            m.checksCompleted = n('checksCompleted') + Math.floor(Math.random() * 3);
+            break;
+          case 'dispatch':
+            m.tasksAssigned = n('tasksAssigned') + Math.floor(Math.random() * 3);
+            m.efficiency = +(93 + Math.random() * 3).toFixed(1);
+            break;
+          case 'execution':
+            m.instructionsSent = n('instructionsSent') + Math.floor(Math.random() * 2);
+            break;
+        }
+        return { ...a, metrics: m };
+      }),
+    })),
+
+  // Agent detail page
+  agentDetailId: null,
+  openAgentDetail: (id) => set({ agentDetailId: id }),
+  closeAgentDetail: () => set({ agentDetailId: null }),
 
   // Metrics
   metrics: initialMetrics,

@@ -20,6 +20,7 @@ export function useSceneManager() {
   const currentScene = useAppStore((s) => s.currentScene);
   const selectedObjectId = useAppStore((s) => s.selectedObjectId);
   const theme = useAppStore((s) => s.theme);
+  const openAgentDetail = useAppStore((s) => s.openAgentDetail);
 
   const handleObjectClick = useCallback(
     (id: string, type: string) => {
@@ -27,9 +28,11 @@ export function useSceneManager() {
         navigateTo('yard', id);
       } else if (type === 'container') {
         navigateTo('container', id);
+      } else if (type === 'agent') {
+        openAgentDetail(id);
       }
     },
-    [navigateTo]
+    [navigateTo, openAgentDetail]
   );
 
   // Create the engine once.
