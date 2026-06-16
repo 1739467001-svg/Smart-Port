@@ -3,6 +3,7 @@ import type { SceneModule, SceneContext, CameraFraming } from '../../core/engine
 import type { CoGResult } from '../../types';
 import { CONTAINER_THEMES, type EnvTheme } from '../common/envTheme';
 import { useAppStore } from '../../stores/appStore';
+import { computeCoG, type CargoBox } from '../../sim/stability';
 
 /* ═══════════════════════════════════════════════
    Container Scene (L3 — Interior / loading view)
@@ -16,12 +17,6 @@ import { useAppStore } from '../../stores/appStore';
 
 // Interior dimensions (world units, ~40ft proportions)
 const BOX = { length: 120, height: 26, depth: 24 };
-
-interface CargoBox {
-  size: [number, number, number];
-  center: [number, number, number];
-  weight: number; // kg
-}
 
 export class ContainerScene implements SceneModule {
   readonly level = 'container' as const;
@@ -129,43 +124,6 @@ function buildCargo(root: THREE.Group, cargo: CargoBox[]) {
     mesh.receiveShadow = true;
     root.add(mesh);
   });
-}
-
-/**
- * Weighted centre of gravity + IMO-style deviation check.
- * Container is centred on the origin, so the geometric centre is (0, H/2, 0).
- * Reusable by a future Safety OC agent.
- */
-export function computeCoG(cargo: CargoBox[], dims: typeof BOX): CoGResult {
-  let total = 0;
-  let wx = 0, wy = 0, wz = 0;
-  for (const b of cargo) {
-    total += b.weight;
-    wx += b.weight * b.center[0];
-    wy += b.weight * b.center[1];
-    wz += b.weight * b.center[2];
-  }
-  const center = { x: wx / total, y: wy / total, z: wz / total };
-  const deviation = { x: center.x, y: center.z };
-
-  const longitudinalLimit = dims.length * 0.05;
-  const lateralLimit = dims.depth * 0.03;
-  const withinX = Math.abs(deviation.x) <= longitudinalLimit;
-  const withinY = Math.abs(deviation.y) <= lateralLimit;
-
-  const ratio = Math.max(
-    Math.abs(deviation.x) / longitudinalLimit,
-    Math.abs(deviation.y) / lateralLimit
-  );
-  const riskLevel: CoGResult['riskLevel'] = ratio <= 1 ? 'safe' : ratio <= 1.6 ? 'warning' : 'critical';
-
-  return {
-    center,
-    deviation,
-    isWithinLimit: withinX && withinY,
-    maxTiltAngle: Math.atan2(deviation.x, Math.max(center.y, 1)) * (180 / Math.PI),
-    riskLevel,
-  };
 }
 
 function buildCoGMarker(ctx: SceneContext, cog: CoGResult) {
