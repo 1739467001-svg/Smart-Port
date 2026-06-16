@@ -1,6 +1,7 @@
 import { TopBar } from './components/ui/TopBar';
 import { MetricsHUD } from './components/hud/MetricsHUD';
 import { ProcessFlowBar } from './components/hud/ProcessFlowBar';
+import { StowagePanel } from './components/hud/StowagePanel';
 import { AgentPanel } from './components/panels/AgentPanel';
 import { AgentDetail } from './components/panels/AgentDetail';
 import { useSceneManager } from './hooks/useSceneManager';
@@ -43,6 +44,9 @@ export default function App() {
 
           {/* Container lifecycle dashboard — only on the port overview */}
           {currentScene === 'port' && <ProcessFlowBar />}
+
+          {/* Stowage optimizer control — only on the L3 single-container view */}
+          {currentScene === 'container' && <StowagePanel />}
 
           {/* OC agent detail page — opens when an OC marker is clicked */}
           <AgentDetail />

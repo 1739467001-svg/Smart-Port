@@ -20,6 +20,7 @@ export function useSceneManager() {
   const currentScene = useAppStore((s) => s.currentScene);
   const selectedObjectId = useAppStore((s) => s.selectedObjectId);
   const theme = useAppStore((s) => s.theme);
+  const stowageMode = useAppStore((s) => s.stowageMode);
   const openAgentDetail = useAppStore((s) => s.openAgentDetail);
 
   const handleObjectClick = useCallback(
@@ -49,14 +50,14 @@ export function useSceneManager() {
     };
   }, [handleObjectClick]);
 
-  // Swap scenes whenever navigation state or theme changes.
-  // Scenes read the active theme from the store at build time, so a
-  // theme switch simply rebuilds the current scene with new palettes.
+  // Swap scenes whenever navigation state, theme or stowage mode changes.
+  // Scenes read these from the store at build time, so a theme switch (or a
+  // manual↔AI stowage toggle in L3) simply rebuilds the current scene.
   useEffect(() => {
     const manager = managerRef.current;
     if (!manager) return;
     manager.loadScene(createScene(currentScene), selectedObjectId ?? undefined);
-  }, [currentScene, selectedObjectId, theme]);
+  }, [currentScene, selectedObjectId, theme, stowageMode]);
 
   return { canvasRef, managerRef };
 }

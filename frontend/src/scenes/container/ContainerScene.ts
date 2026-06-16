@@ -3,20 +3,20 @@ import type { SceneModule, SceneContext, CameraFraming } from '../../core/engine
 import type { CoGResult } from '../../types';
 import { CONTAINER_THEMES, type EnvTheme } from '../common/envTheme';
 import { useAppStore } from '../../stores/appStore';
-import { computeCoG, type CargoBox } from '../../sim/stability';
+import { CONTAINER_DIMS } from '../../sim/stability';
+import type { Placement } from '../../sim/stowageOptimizer';
 
 /* ═══════════════════════════════════════════════
    Container Scene (L3 — Interior / loading view)
 
    Deepest drill-down level. Renders a single container
-   shell with stacked cargo and a live centre-of-gravity
-   visualisation: a glowing CoG sphere coloured by IMO
-   risk level, with a drop line to the floor. This is the
-   visual seed of the roadmap's "Safety OC".
+   shell loaded with the 堆叠 OC's current plan — the naive
+   manual baseline or the AI-optimised plan, toggled from
+   the StowagePanel — plus a live centre-of-gravity marker:
+   a glowing CoG sphere coloured by IMO risk level with a
+   drop line to the floor. Switching the plan re-renders the
+   cargo and visibly moves the CoG marker (critical → safe).
    ═══════════════════════════════════════════════ */
-
-// Interior dimensions (world units, ~40ft proportions)
-const BOX = { length: 120, height: 26, depth: 24 };
 
 export class ContainerScene implements SceneModule {
   readonly level = 'container' as const;
@@ -26,17 +26,18 @@ export class ContainerScene implements SceneModule {
   }
 
   build(ctx: SceneContext) {
-    const env = CONTAINER_THEMES[useAppStore.getState().theme];
+    const state = useAppStore.getState();
+    const env = CONTAINER_THEMES[state.theme];
     ctx.manager.setToneExposure(env.exposure);
     ctx.scene.background = new THREE.Color(env.bg);
     ctx.scene.fog = new THREE.FogExp2(env.bg, env.fogDensity);
 
+    const plan = state.stowageMode === 'ai' ? state.stowageOptimized : state.stowageBaseline;
+
     buildLighting(ctx.root, env);
     buildShell(ctx.root);
-    const cargo = generateCargo();
-    buildCargo(ctx.root, cargo);
-    const cog = computeCoG(cargo, BOX);
-    buildCoGMarker(ctx, cog);
+    buildCargoFromPlan(ctx.root, plan.placements);
+    buildCoGMarker(ctx, plan.cog);
   }
 }
 
@@ -56,9 +57,11 @@ function buildLighting(root: THREE.Group, env: EnvTheme) {
 }
 
 function buildShell(root: THREE.Group) {
+  const { length: L, height: H, depth: D } = CONTAINER_DIMS;
+
   // Floor
   const floor = new THREE.Mesh(
-    new THREE.BoxGeometry(BOX.length, 1, BOX.depth),
+    new THREE.BoxGeometry(L, 1, D),
     new THREE.MeshStandardMaterial({ color: 0x2a3140, roughness: 0.85 })
   );
   floor.position.y = -0.5;
@@ -73,53 +76,32 @@ function buildShell(root: THREE.Group) {
     side: THREE.DoubleSide,
     roughness: 0.4,
   });
-  const back = new THREE.Mesh(new THREE.PlaneGeometry(BOX.length, BOX.height), wallMat);
-  back.position.set(0, BOX.height / 2, -BOX.depth / 2);
+  const back = new THREE.Mesh(new THREE.PlaneGeometry(L, H), wallMat);
+  back.position.set(0, H / 2, -D / 2);
   root.add(back);
-  const left = new THREE.Mesh(new THREE.PlaneGeometry(BOX.depth, BOX.height), wallMat);
+  const left = new THREE.Mesh(new THREE.PlaneGeometry(D, H), wallMat);
   left.rotation.y = Math.PI / 2;
-  left.position.set(-BOX.length / 2, BOX.height / 2, 0);
+  left.position.set(-L / 2, H / 2, 0);
   root.add(left);
 
   // Edge frame
   const edges = new THREE.LineSegments(
-    new THREE.EdgesGeometry(new THREE.BoxGeometry(BOX.length, BOX.height, BOX.depth)),
+    new THREE.EdgesGeometry(new THREE.BoxGeometry(L, H, D)),
     new THREE.LineBasicMaterial({ color: 0x5dcaa5, transparent: true, opacity: 0.5 })
   );
-  edges.position.y = BOX.height / 2;
+  edges.position.y = H / 2;
   root.add(edges);
 }
 
-/** Deterministic cargo with a deliberate forward weight bias (demo: CoG offset). */
-function generateCargo(): CargoBox[] {
-  const boxes: CargoBox[] = [];
-  const cols = 6;
-  const colW = BOX.length / cols;
-  for (let c = 0; c < cols; c++) {
-    const stack = c < 4 ? 2 : 1; // taller stacks toward the rear
-    for (let s = 0; s < stack; s++) {
-      const h = 11;
-      const x = -BOX.length / 2 + colW * (c + 0.5);
-      // heavier toward +x end to push the CoG off-centre
-      const weight = 600 + c * 280 + s * 120;
-      boxes.push({
-        size: [colW - 3, h, BOX.depth - 5],
-        center: [x, h / 2 + s * (h + 1), 0],
-        weight,
-      });
-    }
-  }
-  return boxes;
-}
-
-function buildCargo(root: THREE.Group, cargo: CargoBox[]) {
+/** Render the cargo exactly where the stowage optimizer placed it. */
+function buildCargoFromPlan(root: THREE.Group, placements: Placement[]) {
   const palette = [0xf2a623, 0xe8593c, 0x9b59b6, 0x3b8bd4, 0x2ecc71];
-  cargo.forEach((b, i) => {
+  placements.forEach((p, i) => {
     const mesh = new THREE.Mesh(
-      new THREE.BoxGeometry(...b.size),
+      new THREE.BoxGeometry(...p.size),
       new THREE.MeshStandardMaterial({ color: palette[i % palette.length], roughness: 0.6, metalness: 0.15 })
     );
-    mesh.position.set(...b.center);
+    mesh.position.set(...p.center);
     mesh.castShadow = true;
     mesh.receiveShadow = true;
     root.add(mesh);

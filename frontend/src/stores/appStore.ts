@@ -1,12 +1,20 @@
 import { create } from 'zustand';
 import type { SceneLevel, OCAgent, AgentMessage, PortMetrics, AGVData, CraneData } from '../types';
 import { INITIAL_COUNTS, advanceProcess } from '../sim/processModel';
+import { optimizeStowage, generateManifest, type LoadPlan } from '../sim/stowageOptimizer';
+import { CONTAINER_DIMS } from '../sim/stability';
+
+/* The 堆叠 OC's load plan is computed once, deterministically, at startup:
+   the naive "manual" baseline and the optimised plan. Toggling between them
+   in the L3 view re-renders the cargo and moves the CoG marker for real. */
+const STOWAGE = optimizeStowage(generateManifest(), CONTAINER_DIMS, { seed: 1, iterations: 4000 });
 
 /* ═══════════════════════════════════════════════
    OC Cargo Claw — Global State Store (Zustand)
    ═══════════════════════════════════════════════ */
 
 export type ThemeMode = 'day' | 'night';
+export type StowageMode = 'manual' | 'ai';
 
 interface AppState {
   // Scene navigation
@@ -48,6 +56,13 @@ interface AppState {
   processCounts: number[];
   tickProcess: () => void;
 
+  // Stowage optimisation (L3 — 堆叠 OC): manual baseline vs AI-optimised plan
+  stowageMode: StowageMode;
+  stowageBaseline: LoadPlan;
+  stowageOptimized: LoadPlan;
+  setStowageMode: (mode: StowageMode) => void;
+  toggleStowageMode: () => void;
+
   // Equipment
   cranes: CraneData[];
   agvs: AGVData[];
@@ -72,7 +87,7 @@ const initialAgents: OCAgent[] = [
     name: '堆叠 OC',
     role: 'Lobster Agent',
     status: 'computing',
-    metrics: { iterations: 12847, bestUtilization: 87.3 },
+    metrics: { iterations: STOWAGE.iterations, bestUtilization: +(STOWAGE.optimized.utilization * 100).toFixed(1) },
   },
   {
     id: 'safety-agent',
@@ -152,8 +167,9 @@ export const useAppStore = create<AppState>((set) => ({
             m.pending = Math.max(0, 8 + Math.floor(Math.random() * 10));
             break;
           case 'lobster':
+            // keep the headline utilisation honest (it is the real optimiser
+            // result); only the cumulative search-iteration counter ticks up
             m.iterations = n('iterations') + Math.floor(20 + Math.random() * 180);
-            m.bestUtilization = +(85.5 + Math.random() * 3).toFixed(1);
             break;
           case 'safety':
             m.checksCompleted = n('checksCompleted') + Math.floor(Math.random() * 3);
@@ -190,6 +206,13 @@ export const useAppStore = create<AppState>((set) => ({
         metrics: { ...s.metrics, throughputTEU: s.metrics.throughputTEU + completed },
       };
     }),
+
+  // Stowage optimisation — default to the AI plan so the demo opens strong
+  stowageMode: 'ai',
+  stowageBaseline: STOWAGE.baseline,
+  stowageOptimized: STOWAGE.optimized,
+  setStowageMode: (mode) => set({ stowageMode: mode }),
+  toggleStowageMode: () => set((s) => ({ stowageMode: s.stowageMode === 'ai' ? 'manual' : 'ai' })),
 
   // Equipment
   cranes: [],

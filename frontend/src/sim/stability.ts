@@ -16,6 +16,9 @@ export interface ContainerDims {
   depth: number;  // z
 }
 
+/** Canonical interior dimensions of the demo container (world units, ~40ft). */
+export const CONTAINER_DIMS: ContainerDims = { length: 120, height: 26, depth: 24 };
+
 /**
  * A box inside the container, centred in container-local coordinates:
  * the origin sits at the container's geometric centre on the floor, so
