@@ -10,7 +10,7 @@ import type { Placement } from '../../sim/stowageOptimizer';
    Container Scene (L3 — Interior / loading view)
 
    Deepest drill-down level. Renders a single container
-   shell loaded with the 堆叠 OC's current plan — the naive
+   shell loaded with the 配载数字员工's current plan — the naive
    manual baseline or the AI-optimised plan, toggled from
    the StowagePanel — plus a live centre-of-gravity marker:
    a glowing CoG sphere coloured by IMO risk level with a

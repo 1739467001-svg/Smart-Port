@@ -5,7 +5,7 @@ import styles from './StowagePanel.module.css';
 /* ═══════════════════════════════════════════════
    StowagePanel — L3 manual-vs-AI stowage control
 
-   The visible face of the 堆叠 OC optimizer. Flipping
+   The visible face of the 配载数字员工's optimizer. Flipping
    the toggle rebuilds the container scene with the other
    plan, so the cargo re-stacks and the CoG marker moves
    (critical → safe) in real time. All numbers come from
@@ -32,10 +32,10 @@ export function StowagePanel() {
   return (
     <div className={styles.panel}>
       <div className={styles.header}>
-        <span className={styles.icon}>🦞</span>
+        <span className={styles.icon}>📦</span>
         <div>
           <div className={styles.title}>配载优化 · STOWAGE</div>
-          <div className={styles.sub}>堆叠 OC · Lobster Agent</div>
+          <div className={styles.sub}>配载数字员工 · Stowage Agent</div>
         </div>
       </div>
 

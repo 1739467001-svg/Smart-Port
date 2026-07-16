@@ -12,8 +12,8 @@ export function TopBar() {
   return (
     <header className={styles.bar}>
       <div className={styles.left}>
-        <span className={styles.logo}>OC</span>
-        <span className={styles.title}>CARGO CLAW</span>
+        <span className={styles.logo}>智港</span>
+        <span className={styles.title}>数字员工协同平台</span>
         <span className={styles.version}>DIGITAL TWIN v3.0</span>
       </div>
 

@@ -7,7 +7,7 @@ import {
 } from './stability';
 
 /* ═══════════════════════════════════════════════
-   Stowage Optimizer — the "Lobster OC" brain
+   Stowage Optimizer — the 配载数字员工 brain
 
    A real container-loading heuristic: wall-building
    (shelf) packing driven by a simulated-annealing
@@ -18,7 +18,7 @@ import {
    is unit-testable and reproducible on stage.
 
    This replaces the random placeholder metrics the
-   堆叠 OC used to emit with an actual optimisation
+   配载数字员工 used to emit with an actual optimisation
    the demo can show improving in real time.
    ═══════════════════════════════════════════════ */
 

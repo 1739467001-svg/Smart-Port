@@ -11,7 +11,7 @@ import { useAppStore } from '../../stores/appStore';
    Port Scene (L1 — Bird's-eye view)
 
    Builds sea, ground, berths, quay cranes, container
-   yard, ship, AGVs and OC markers — all driven by a
+   yard, ship, AGVs and 数字员工 markers — all driven by a
    PortLayout config. Clicking a yard block drills to L2.
    ═══════════════════════════════════════════════ */
 
@@ -60,7 +60,7 @@ export class PortScene implements SceneModule {
     buildContainerYard(ctx, this.layout);
     buildAGVs(ctx, this.layout);
     buildContainerFlow(ctx);
-    buildOCMarkers(ctx);
+    buildAgentMarkers(ctx);
     buildPortLights(ctx, theme);
   }
 }
@@ -414,16 +414,16 @@ function buildAGVs(ctx: SceneContext, layout: PortLayout) {
   }
 }
 
-// ── OC Agent Markers ──
-function buildOCMarkers(ctx: SceneContext) {
+// ── 数字员工 Markers ──
+function buildAgentMarkers(ctx: SceneContext) {
   const { root } = ctx;
-  // Each marker maps to an OC agent — clicking it opens that agent's detail page.
+  // Each marker maps to a 数字员工 — clicking it opens that employee's detail page.
   const ocPositions: Array<{ id: string; name: string; color: number; pos: [number, number, number] }> = [
-    { id: 'data-agent', name: '箱单OC', color: 0x3b8bd4, pos: [145, 30, 85] },
-    { id: 'lobster-agent', name: '堆叠OC', color: 0xe8593c, pos: [0, 78, -88] },
-    { id: 'safety-agent', name: '安全OC', color: 0x5dcaa5, pos: [-105, 30, 65] },
-    { id: 'dispatch-agent', name: '调度OC', color: 0xf2a623, pos: [0, 52, 0] },
-    { id: 'exec-agent', name: '指令OC', color: 0x9b59b6, pos: [105, 30, -45] },
+    { id: 'data-agent', name: '单证员工', color: 0x3b8bd4, pos: [145, 30, 85] },
+    { id: 'stowage-agent', name: '配载员工', color: 0xe8593c, pos: [0, 78, -88] },
+    { id: 'safety-agent', name: '安全员工', color: 0x5dcaa5, pos: [-105, 30, 65] },
+    { id: 'dispatch-agent', name: '调度员工', color: 0xf2a623, pos: [0, 52, 0] },
+    { id: 'exec-agent', name: '执行员工', color: 0x9b59b6, pos: [105, 30, -45] },
   ];
 
   ocPositions.forEach((oc, i) => {

@@ -1,5 +1,5 @@
 # ═══════════════════════════════════════════════
-# OC Cargo Claw — Production Dockerfile
+# 智港数字员工 SmartPort Digital Workforce — Production Dockerfile
 # Multi-stage build: build → serve with nginx
 # ═══════════════════════════════════════════════
 

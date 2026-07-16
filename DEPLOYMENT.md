@@ -1,4 +1,4 @@
-# 🚀 OC Cargo Claw 部署指南
+# 🚀 智港数字员工 部署指南
 
 > 从本地开发到云服务器上线的完整流程
 
@@ -47,8 +47,8 @@ npm run preview     # 本地预览生产构建
 
 ```bash
 cd frontend
-docker build -t cargo-claw-web .
-docker run -p 3000:80 cargo-claw-web
+docker build -t smart-port-web .
+docker run -p 3000:80 smart-port-web
 ```
 
 ### Docker Compose（推荐）
@@ -103,8 +103,8 @@ sudo systemctl enable docker
 **方式 A：从 Git 仓库**
 
 ```bash
-git clone https://github.com/your-username/cargo-claw.git
-cd cargo-claw
+git clone https://github.com/your-username/smart-port.git
+cd smart-port
 ```
 
 **方式 B：从本地上传**
@@ -112,10 +112,10 @@ cd cargo-claw
 ```bash
 # 本地执行
 rsync -avz --exclude node_modules --exclude dist \
-  ./cargo-claw/ root@your-server-ip:/root/cargo-claw/
+  ./smart-port/ root@your-server-ip:/root/smart-port/
 
 # 服务器执行
-cd /root/cargo-claw
+cd /root/smart-port
 ```
 
 #### 3️⃣ 启动服务
@@ -149,7 +149,7 @@ docker compose ps
 apt update && apt install -y nginx certbot python3-certbot-nginx
 
 # 创建 Nginx 配置
-cat > /etc/nginx/sites-available/cargoclaw << 'EOF'
+cat > /etc/nginx/sites-available/smartport << 'EOF'
 server {
     listen 80;
     server_name your-domain.com;
@@ -164,7 +164,7 @@ server {
 }
 EOF
 
-ln -s /etc/nginx/sites-available/cargoclaw /etc/nginx/sites-enabled/
+ln -s /etc/nginx/sites-available/smartport /etc/nginx/sites-enabled/
 nginx -t && systemctl reload nginx
 
 # 申请 HTTPS 证书（自动配置 Nginx）
@@ -210,7 +210,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            cd /root/cargo-claw
+            cd /root/smart-port
             git pull
             docker compose up -d --build
 ```
@@ -308,11 +308,11 @@ if (isLowEnd) {
 - [ ] HTTPS 证书有效（浏览器地址栏显示锁图标）
 - [ ] 3D 场景正常加载（船舶、岸桥、堆场可见）
 - [ ] 鼠标拖拽旋转流畅
-- [ ] 右侧 Agent 面板数据实时更新
+- [ ] 右侧数字员工面板数据实时更新
 - [ ] PAUSE/RESUME 按钮可切换
 - [ ] 浏览器 Console 无报错
 - [ ] 移动端能打开（即使有性能问题）
 
 ---
 
-*更新时间：2026 · OC Cargo Claw v3.0*
+*更新时间：2026 · 智港数字员工 v3.0*

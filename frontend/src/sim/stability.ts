@@ -6,7 +6,7 @@ import type { CoGResult } from '../types';
    Centre-of-gravity + IMO-style deviation / risk
    classification for a loaded container. Extracted
    from the L3 ContainerScene so it can be reused by
-   the stowage optimizer and the Safety OC, and unit
+   the stowage optimizer and the 安全数字员工, and unit
    tested without pulling in Three.js.
    ═══════════════════════════════════════════════ */
 

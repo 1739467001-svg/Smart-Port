@@ -1,16 +1,16 @@
 import { create } from 'zustand';
-import type { SceneLevel, OCAgent, AgentMessage, PortMetrics, AGVData, CraneData } from '../types';
+import type { SceneLevel, DigitalEmployee, AgentMessage, PortMetrics, AGVData, CraneData } from '../types';
 import { INITIAL_COUNTS, advanceProcess } from '../sim/processModel';
 import { optimizeStowage, generateManifest, type LoadPlan } from '../sim/stowageOptimizer';
 import { CONTAINER_DIMS } from '../sim/stability';
 
-/* The 堆叠 OC's load plan is computed once, deterministically, at startup:
+/* The 配载数字员工's load plan is computed once, deterministically, at startup:
    the naive "manual" baseline and the optimised plan. Toggling between them
    in the L3 view re-renders the cargo and moves the CoG marker for real. */
 const STOWAGE = optimizeStowage(generateManifest(), CONTAINER_DIMS, { seed: 1, iterations: 4000 });
 
 /* ═══════════════════════════════════════════════
-   OC Cargo Claw — Global State Store (Zustand)
+   智港数字员工 SmartPort Digital Workforce — Global State Store (Zustand)
    ═══════════════════════════════════════════════ */
 
 export type ThemeMode = 'day' | 'night';
@@ -34,16 +34,16 @@ interface AppState {
   toggleSim: () => void;
   setSimSpeed: (speed: number) => void;
 
-  // OC Agents
-  agents: OCAgent[];
+  // 数字员工 Digital Employees
+  agents: DigitalEmployee[];
   agentMessages: AgentMessage[];
   selectedAgentId: string | null;
   selectAgent: (id: string | null) => void;
   addAgentMessage: (msg: AgentMessage) => void;
-  updateAgentStatus: (id: string, status: OCAgent['status'], lastAction?: string) => void;
+  updateAgentStatus: (id: string, status: DigitalEmployee['status'], lastAction?: string) => void;
   bumpAgentMetrics: () => void;
 
-  // Agent detail page (opened by clicking an OC marker)
+  // Agent detail page (opened by clicking a 数字员工 marker)
   agentDetailId: string | null;
   openAgentDetail: (id: string) => void;
   closeAgentDetail: () => void;
@@ -56,7 +56,7 @@ interface AppState {
   processCounts: number[];
   tickProcess: () => void;
 
-  // Stowage optimisation (L3 — 堆叠 OC): manual baseline vs AI-optimised plan
+  // Stowage optimisation (L3 — 配载数字员工): manual baseline vs AI-optimised plan
   stowageMode: StowageMode;
   stowageBaseline: LoadPlan;
   stowageOptimized: LoadPlan;
@@ -72,27 +72,27 @@ interface AppState {
   toggleRightPanel: () => void;
 }
 
-const initialAgents: OCAgent[] = [
+const initialAgents: DigitalEmployee[] = [
   {
     id: 'data-agent',
     type: 'data',
-    name: '箱单 OC',
-    role: 'Data Agent',
+    name: '单证数字员工',
+    role: 'Documentation Agent',
     status: 'active',
     metrics: { processed: 2847, pending: 12 },
   },
   {
-    id: 'lobster-agent',
-    type: 'lobster',
-    name: '堆叠 OC',
-    role: 'Lobster Agent',
+    id: 'stowage-agent',
+    type: 'stowage',
+    name: '配载数字员工',
+    role: 'Stowage Agent',
     status: 'computing',
     metrics: { iterations: STOWAGE.iterations, bestUtilization: +(STOWAGE.optimized.utilization * 100).toFixed(1) },
   },
   {
     id: 'safety-agent',
     type: 'safety',
-    name: '安全 OC',
+    name: '安全数字员工',
     role: 'Safety Agent',
     status: 'monitoring',
     metrics: { checksCompleted: 1563, vetoes: 4 },
@@ -100,7 +100,7 @@ const initialAgents: OCAgent[] = [
   {
     id: 'dispatch-agent',
     type: 'dispatch',
-    name: '调度 OC',
+    name: '调度数字员工',
     role: 'Dispatch Agent',
     status: 'active',
     metrics: { tasksAssigned: 892, efficiency: 94.2 },
@@ -108,7 +108,7 @@ const initialAgents: OCAgent[] = [
   {
     id: 'exec-agent',
     type: 'execution',
-    name: '指令 OC',
+    name: '执行数字员工',
     role: 'Execution Agent',
     status: 'standby',
     metrics: { instructionsSent: 1342, successRate: 99.6 },
@@ -166,7 +166,7 @@ export const useAppStore = create<AppState>((set) => ({
             m.processed = n('processed') + Math.floor(Math.random() * 4);
             m.pending = Math.max(0, 8 + Math.floor(Math.random() * 10));
             break;
-          case 'lobster':
+          case 'stowage':
             // keep the headline utilisation honest (it is the real optimiser
             // result); only the cumulative search-iteration counter ticks up
             m.iterations = n('iterations') + Math.floor(20 + Math.random() * 180);

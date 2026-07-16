@@ -9,13 +9,13 @@ import styles from './ProcessFlowBar.module.css';
 
    The "digital" twin of the 3D physical flow: every
    lifecycle stage with its live in-transit count,
-   coloured by the OC agent that owns it. Reads the
+   coloured by the 数字员工 that owns it. Reads the
    process model from the store.
    ═══════════════════════════════════════════════ */
 
 const AGENT_COLOR: Record<AgentType, string> = {
   data: 'var(--color-ocean)',
-  lobster: 'var(--color-crane)',
+  stowage: 'var(--color-crane)',
   safety: 'var(--color-safety)',
   dispatch: 'var(--color-agv)',
   execution: 'var(--color-exec)',
@@ -28,7 +28,7 @@ export function ProcessFlowBar() {
     <div className={styles.bar}>
       <div className={styles.header}>
         <span className={styles.title}>集装箱全流程 · CONTAINER LIFECYCLE</span>
-        <span className={styles.sub}>在途箱量 · 颜色 = 负责的 OC 智能体</span>
+        <span className={styles.sub}>在途箱量 · 颜色 = 负责的数字员工</span>
       </div>
 
       <div className={styles.track}>

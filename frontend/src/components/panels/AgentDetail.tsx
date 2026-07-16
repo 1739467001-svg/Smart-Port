@@ -5,23 +5,23 @@ import { PROCESS_STAGES } from '../../sim/processModel';
 import styles from './AgentDetail.module.css';
 
 /* ═══════════════════════════════════════════════
-   AgentDetail — OC agent detail page (L2 for agents)
+   AgentDetail — 数字员工 detail page (L2 for digital employees)
 
-   Opens when an OC marker (the glowing "eye") is clicked
+   Opens when a 数字员工 marker (the glowing "eye") is clicked
    in the port scene. Shows the agent's mission, the
    lifecycle stages it owns (with live in-transit counts),
    its live metrics and filtered comms.
    ═══════════════════════════════════════════════ */
 
 const ICONS: Record<AgentType, string> = {
-  data: '📋', lobster: '🦞', safety: '🛡️', dispatch: '🎯', execution: '⚡',
+  data: '📋', stowage: '📦', safety: '🛡️', dispatch: '🚦', execution: '⚡',
 };
 const COLORS: Record<AgentType, string> = {
-  data: 'var(--color-ocean)', lobster: 'var(--color-crane)', safety: 'var(--color-safety)',
+  data: 'var(--color-ocean)', stowage: 'var(--color-crane)', safety: 'var(--color-safety)',
   dispatch: 'var(--color-agv)', execution: 'var(--color-exec)',
 };
 const TYPE_NAME: Record<AgentType, string> = {
-  data: '箱单', lobster: '堆叠', safety: '安全', dispatch: '调度', execution: '指令',
+  data: '单证', stowage: '配载', safety: '安全', dispatch: '调度', execution: '执行',
 };
 const STATUS_LABEL: Record<string, string> = {
   active: '运行中', computing: '推演中', monitoring: '监控中', standby: '待命', error: '异常',
@@ -31,8 +31,8 @@ const STATUS_COLOR: Record<string, string> = {
 };
 
 const MISSION: Record<AgentType, { tagline: string; duties: string[] }> = {
-  data: { tagline: '单证与数据中枢', duties: ['订舱 / 配舱信息接入', '报关 · 海关数据校验', '箱单 EDI 解析与标准化', '为下游 OC 提供干净数据'] },
-  lobster: { tagline: '空间推演引擎 · 龙虾引擎', duties: ['堆场箱位规划', '配载计划 BAPLIE 生成', '堆叠顺序 / 翻箱最小化', '装载利用率优化'] },
+  data: { tagline: '单证与数据中枢', duties: ['订舱 / 配舱信息接入', '报关 · 海关数据校验', '箱单 EDI 解析与标准化', '为下游数字员工提供干净数据'] },
+  stowage: { tagline: '智能配载引擎 · 空间推演', duties: ['堆场箱位规划', '配载计划 BAPLIE 生成', '堆叠顺序 / 翻箱最小化', '装载利用率优化'] },
   safety: { tagline: '安全与合规守门人', duties: ['VGM 过磅核验', '三维重心 CoG 计算', '危品 / 超限拦截', '不安全方案否决'] },
   dispatch: { tagline: '设备调度协调官', duties: ['岸桥 / 轨道吊 / AGV 协同', '作业序列编排', '资源冲突消解', '调度效率优化'] },
   execution: { tagline: '指令执行末端', duties: ['向自动化设备下发指令', '执行状态回传', '异常上报', '闭环确认'] },
@@ -44,7 +44,7 @@ const METRIC_LABEL: Record<string, string> = {
   instructionsSent: '已下发指令', successRate: '成功率 %',
 };
 
-const routeLabel = (t: AgentType | 'ALL') => (t === 'ALL' ? 'ALL' : `${TYPE_NAME[t]}OC`);
+const routeLabel = (t: AgentType | 'ALL') => (t === 'ALL' ? 'ALL' : `${TYPE_NAME[t]}员工`);
 
 export function AgentDetail() {
   const agentDetailId = useAppStore((s) => s.agentDetailId);

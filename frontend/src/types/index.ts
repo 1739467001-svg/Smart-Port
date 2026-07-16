@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════
-   OC Cargo Claw — Core Type Definitions
+   智港数字员工 SmartPort Digital Workforce — Core Type Definitions
    ═══════════════════════════════════════════════ */
 
 // ── Scene Management ──
@@ -95,11 +95,11 @@ export interface AGVData {
   carryingContainer?: string;
 }
 
-// ── OC Agents ──
-export type AgentType = 'data' | 'lobster' | 'safety' | 'dispatch' | 'execution';
+// ── 数字员工 Digital Employees ──
+export type AgentType = 'data' | 'stowage' | 'safety' | 'dispatch' | 'execution';
 export type AgentStatus = 'active' | 'computing' | 'monitoring' | 'standby' | 'error';
 
-export interface OCAgent {
+export interface DigitalEmployee {
   id: string;
   type: AgentType;
   name: string;

@@ -10,11 +10,11 @@ import { useAppStore } from './stores/appStore';
 import styles from './App.module.css';
 
 /* ═══════════════════════════════════════════════
-   OC Cargo Claw — Main Application Shell
+   智港数字员工 SmartPort Digital Workforce — Main Application Shell
    ═══════════════════════════════════════════════ */
 
 const SCENE_HINTS: Record<string, string> = {
-  port: '左键拖拽旋转 · 滚轮缩放 · 点击堆场下钻 L2 · 点击 OC 光标查看智能体详情',
+  port: '左键拖拽旋转 · 滚轮缩放 · 点击堆场下钻 L2 · 点击数字员工光标查看详情',
   yard: '点击任意集装箱下钻到 L3 内部 · 顶部面包屑可返回全港',
   container: 'L3 单箱视图 · 发光球体为货物重心 (CoG) · 顶部面包屑可返回',
 };
@@ -48,7 +48,7 @@ export default function App() {
           {/* Stowage optimizer control — only on the L3 single-container view */}
           {currentScene === 'container' && <StowagePanel />}
 
-          {/* OC agent detail page — opens when an OC marker is clicked */}
+          {/* 数字员工 detail page — opens when a marker is clicked */}
           <AgentDetail />
         </div>
 

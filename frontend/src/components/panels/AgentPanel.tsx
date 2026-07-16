@@ -5,15 +5,15 @@ import styles from './AgentPanel.module.css';
 
 const AGENT_ICONS: Record<AgentType, string> = {
   data: '📋',
-  lobster: '🦞',
+  stowage: '📦',
   safety: '🛡️',
-  dispatch: '🎯',
+  dispatch: '🚦',
   execution: '⚡',
 };
 
 const AGENT_COLORS: Record<AgentType, string> = {
   data: 'var(--color-ocean)',
-  lobster: 'var(--color-crane)',
+  stowage: 'var(--color-crane)',
   safety: 'var(--color-safety)',
   dispatch: 'var(--color-agv)',
   execution: 'var(--color-exec)',
@@ -29,7 +29,7 @@ const STATUS_COLORS: Record<string, string> = {
 
 const AGENT_DETAILS: Record<AgentType, string> = {
   data: '实时监听订单网关，已处理 2,847 条箱单数据。当前正在清洗第 F-2024-0892 批次…',
-  lobster: '龙虾引擎运算中：Bay #7 第 12,847 次空间推演。当前最优利用率 87.3%…',
+  stowage: '智能配载引擎运算中：Bay #7 第 12,847 次空间推演。当前最优利用率 87.3%…',
   safety: '三维重心监控正常。CoG 偏移 [x: 0.3m, y: 0.1m] 在安全阈值内。无否决事件。',
   dispatch: '协调 3 台岸桥 + 6 台 AGV。当前调度效率 94.2%，无资源冲突。',
   execution: '待命。上一批指令 #D-0891 已下发至 ARMG-03 和 AGV-05。等待新共识…',
@@ -44,11 +44,11 @@ interface CommLog {
 }
 
 const INITIAL_LOGS: CommLog[] = [
-  { from: '堆叠OC', to: '安全OC', msg: 'Bay#7 方案 v12847 提交审查', time: '00:03', color: 'var(--color-crane)' },
-  { from: '安全OC', to: '堆叠OC', msg: 'CoG 通过 ✓ 方案批准', time: '00:03', color: 'var(--color-safety)' },
-  { from: '调度OC', to: '指令OC', msg: '共识达成，执行 Bay#7', time: '00:02', color: 'var(--color-agv)' },
-  { from: '指令OC', to: 'ARMG-03', msg: '指令集 #D-0892 已下发', time: '00:01', color: 'var(--color-exec)' },
-  { from: '箱单OC', to: 'ALL', msg: '新批次 F-0893 数据就绪', time: 'NOW', color: 'var(--color-ocean)' },
+  { from: '配载员工', to: '安全员工', msg: 'Bay#7 方案 v12847 提交审查', time: '00:03', color: 'var(--color-crane)' },
+  { from: '安全员工', to: '配载员工', msg: 'CoG 通过 ✓ 方案批准', time: '00:03', color: 'var(--color-safety)' },
+  { from: '调度员工', to: '执行员工', msg: '共识达成，执行 Bay#7', time: '00:02', color: 'var(--color-agv)' },
+  { from: '执行员工', to: 'ARMG-03', msg: '指令集 #D-0892 已下发', time: '00:01', color: 'var(--color-exec)' },
+  { from: '单证员工', to: 'ALL', msg: '新批次 F-0893 数据就绪', time: 'NOW', color: 'var(--color-ocean)' },
 ];
 
 export function AgentPanel() {
@@ -62,7 +62,7 @@ export function AgentPanel() {
 
   return (
     <aside className={styles.panel}>
-      <div className={styles.sectionTitle}>OC AGENT SOCIETY</div>
+      <div className={styles.sectionTitle}>数字员工 · DIGITAL WORKFORCE</div>
 
       {agents.map((agent) => {
         const isSelected = selectedAgentId === agent.id;
@@ -104,7 +104,7 @@ export function AgentPanel() {
 
       {/* Communication Log */}
       <div className={styles.logSection}>
-        <div className={styles.sectionTitle}>AGENT COMM LOG</div>
+        <div className={styles.sectionTitle}>数字员工协同 · COMM LOG</div>
         {logs.map((log, i) => (
           <div key={i} className={styles.logEntry} style={{ borderLeftColor: log.color + '44' }}>
             <div className={styles.logFrom} style={{ color: log.color }}>
