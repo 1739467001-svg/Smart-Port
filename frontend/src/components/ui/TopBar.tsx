@@ -8,6 +8,7 @@ export function TopBar() {
   const navigateTo = useAppStore((s) => s.navigateTo);
   const theme = useAppStore((s) => s.theme);
   const toggleTheme = useAppStore((s) => s.toggleTheme);
+  const openRoiPanel = useAppStore((s) => s.openRoiPanel);
 
   return (
     <header className={styles.bar}>
@@ -44,6 +45,14 @@ export function TopBar() {
       </nav>
 
       <div className={styles.right}>
+        <button
+          className={styles.roiBtn}
+          onClick={openRoiPanel}
+          title="数字员工降本增效测算"
+        >
+          📊 降本增效
+        </button>
+
         <button
           className={styles.simBtn}
           onClick={toggleTheme}

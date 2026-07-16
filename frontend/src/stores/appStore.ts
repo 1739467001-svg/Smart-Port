@@ -48,6 +48,15 @@ interface AppState {
   openAgentDetail: (id: string) => void;
   closeAgentDetail: () => void;
 
+  // ROI / 降本增效 panel
+  roiPanelOpen: boolean;
+  openRoiPanel: () => void;
+  closeRoiPanel: () => void;
+
+  // 数字员工上岗 opening overlay
+  introOpen: boolean;
+  dismissIntro: () => void;
+
   // Port metrics
   metrics: PortMetrics;
   updateMetrics: (partial: Partial<PortMetrics>) => void;
@@ -190,6 +199,15 @@ export const useAppStore = create<AppState>((set) => ({
   agentDetailId: null,
   openAgentDetail: (id) => set({ agentDetailId: id }),
   closeAgentDetail: () => set({ agentDetailId: null }),
+
+  // ROI / 降本增效 panel
+  roiPanelOpen: false,
+  openRoiPanel: () => set({ roiPanelOpen: true }),
+  closeRoiPanel: () => set({ roiPanelOpen: false }),
+
+  // 数字员工上岗 opening overlay — shown on load, front-and-centre for 路演
+  introOpen: true,
+  dismissIntro: () => set({ introOpen: false }),
 
   // Metrics
   metrics: initialMetrics,

@@ -1,9 +1,11 @@
 import { TopBar } from './components/ui/TopBar';
+import { WorkforceIntro } from './components/ui/WorkforceIntro';
 import { MetricsHUD } from './components/hud/MetricsHUD';
 import { ProcessFlowBar } from './components/hud/ProcessFlowBar';
 import { StowagePanel } from './components/hud/StowagePanel';
 import { AgentPanel } from './components/panels/AgentPanel';
 import { AgentDetail } from './components/panels/AgentDetail';
+import { RoiPanel } from './components/panels/RoiPanel';
 import { useSceneManager } from './hooks/useSceneManager';
 import { useSimulation } from './hooks/useSimulation';
 import { useAppStore } from './stores/appStore';
@@ -55,6 +57,12 @@ export default function App() {
         {/* Right panel */}
         <AgentPanel />
       </div>
+
+      {/* 降本增效 ROI 测算 — opened from the top bar */}
+      <RoiPanel />
+
+      {/* 数字员工天团上岗 — opening overlay (路演 opener) */}
+      <WorkforceIntro />
     </div>
   );
 }
