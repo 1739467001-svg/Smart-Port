@@ -124,9 +124,12 @@ export function AssistantPanel() {
         </div>
 
         <div className={styles.suggestions}>
-          {assistantSuggestions().map((s) => (
-            <button key={s} className={styles.chip} onClick={() => send(s)}>{s}</button>
-          ))}
+          <div className={styles.suggestLabel}>推荐问题 · 点击直接问</div>
+          <div className={styles.chips}>
+            {assistantSuggestions().map((s) => (
+              <button key={s} className={styles.chip} onClick={() => send(s)}>{s}</button>
+            ))}
+          </div>
         </div>
 
         <div className={styles.inputRow}>

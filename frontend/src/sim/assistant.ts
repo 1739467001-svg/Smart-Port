@@ -142,13 +142,16 @@ const INTENTS: Intent[] = [
   },
 ];
 
+// Curated as a 路演 arc: 介绍 → 团队 → 技术 → 安全 → 运营 → 指标 → 价值.
+// Every preset is verified to route to an intent with a real-data answer.
 const SUGGESTIONS = [
-  '当前配载重心安全吗？',
-  'AI 比人工配载好多少？',
-  '哪个环节在途箱量最高？',
-  '一年能省多少钱？',
+  '介绍一下智港平台',
   '五个数字员工分别在做什么？',
+  'AI 比人工配载好多少？',
+  '当前配载重心安全吗？',
+  '哪个环节在途箱量最高？',
   '岸桥利用率现在多少？',
+  '一年能省多少钱？',
 ];
 
 export function assistantSuggestions(): string[] {
