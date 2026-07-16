@@ -12,6 +12,7 @@ export function TopBar() {
   const tourActive = useAppStore((s) => s.tourActive);
   const startTour = useAppStore((s) => s.startTour);
   const stopTour = useAppStore((s) => s.stopTour);
+  const openAssistant = useAppStore((s) => s.openAssistant);
 
   return (
     <header className={styles.bar}>
@@ -62,6 +63,14 @@ export function TopBar() {
           title="数字员工降本增效测算"
         >
           📊 降本增效
+        </button>
+
+        <button
+          className={styles.askBtn}
+          onClick={openAssistant}
+          title="向数字员工提问（离线，答案取自实时数据）"
+        >
+          💬 问数字员工
         </button>
 
         <button

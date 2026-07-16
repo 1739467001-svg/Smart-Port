@@ -64,6 +64,11 @@ interface AppState {
   stopTour: () => void;
   setTourStep: (n: number) => void;
 
+  // 数字员工问答 assistant
+  assistantOpen: boolean;
+  openAssistant: () => void;
+  closeAssistant: () => void;
+
   // Port metrics
   metrics: PortMetrics;
   updateMetrics: (partial: Partial<PortMetrics>) => void;
@@ -222,6 +227,11 @@ export const useAppStore = create<AppState>((set) => ({
   startTour: () => set({ tourActive: true, tourStep: 0, introOpen: false, roiPanelOpen: false, agentDetailId: null }),
   stopTour: () => set({ tourActive: false }),
   setTourStep: (n) => set({ tourStep: n }),
+
+  // 数字员工问答 assistant
+  assistantOpen: false,
+  openAssistant: () => set({ assistantOpen: true }),
+  closeAssistant: () => set({ assistantOpen: false }),
 
   // Metrics
   metrics: initialMetrics,

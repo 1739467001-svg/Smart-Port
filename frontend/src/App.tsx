@@ -7,6 +7,7 @@ import { TourCaption } from './components/hud/TourCaption';
 import { AgentPanel } from './components/panels/AgentPanel';
 import { AgentDetail } from './components/panels/AgentDetail';
 import { RoiPanel } from './components/panels/RoiPanel';
+import { AssistantPanel } from './components/panels/AssistantPanel';
 import { useSceneManager } from './hooks/useSceneManager';
 import { useSimulation } from './hooks/useSimulation';
 import { useTour } from './hooks/useTour';
@@ -66,6 +67,9 @@ export default function App() {
 
       {/* 降本增效 ROI 测算 — opened from the top bar */}
       <RoiPanel />
+
+      {/* 数字员工问答 — 让数字员工"开口"，答案取自实时数据 */}
+      <AssistantPanel />
 
       {/* 数字员工天团上岗 — opening overlay (路演 opener) */}
       <WorkforceIntro />
