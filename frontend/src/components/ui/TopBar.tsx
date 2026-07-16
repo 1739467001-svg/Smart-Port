@@ -9,6 +9,9 @@ export function TopBar() {
   const theme = useAppStore((s) => s.theme);
   const toggleTheme = useAppStore((s) => s.toggleTheme);
   const openRoiPanel = useAppStore((s) => s.openRoiPanel);
+  const tourActive = useAppStore((s) => s.tourActive);
+  const startTour = useAppStore((s) => s.startTour);
+  const stopTour = useAppStore((s) => s.stopTour);
 
   return (
     <header className={styles.bar}>
@@ -45,6 +48,14 @@ export function TopBar() {
       </nav>
 
       <div className={styles.right}>
+        <button
+          className={tourActive ? styles.tourBtnActive : styles.tourBtn}
+          onClick={tourActive ? stopTour : startTour}
+          title="一键自动路演 L1 → L2 → L3"
+        >
+          {tourActive ? '■ 结束路演' : '▶ 一键路演'}
+        </button>
+
         <button
           className={styles.roiBtn}
           onClick={openRoiPanel}

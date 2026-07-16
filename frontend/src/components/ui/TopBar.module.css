@@ -128,6 +128,34 @@
   box-shadow: 0 0 12px color-mix(in srgb, var(--color-safety) 30%, transparent);
 }
 
+.tourBtn {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 5px 14px;
+  background: color-mix(in srgb, var(--color-ocean) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-ocean) 50%, transparent);
+  border-radius: 4px;
+  color: var(--color-ocean);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.tourBtn:hover {
+  background: color-mix(in srgb, var(--color-ocean) 26%, transparent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--color-ocean) 32%, transparent);
+}
+
+.tourBtnActive {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 5px 14px;
+  background: color-mix(in srgb, var(--color-crane) 20%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-crane) 55%, transparent);
+  border-radius: 4px;
+  color: var(--color-crane);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
 .simBtn:hover {
   background: rgba(255, 255, 255, 0.08);
   border-color: rgba(255, 255, 255, 0.15);

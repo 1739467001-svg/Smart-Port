@@ -1,0 +1,128 @@
+.wrap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 150px;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.card {
+  pointer-events: auto;
+  width: min(560px, 86%);
+  background: var(--bg-overlay);
+  border: 1px solid var(--border-medium);
+  border-radius: 12px;
+  padding: 14px 18px 12px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.5);
+  animation: pop 0.3s ease;
+}
+@keyframes pop {
+  from { transform: translateY(10px); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
+.turn {
+  border-color: color-mix(in srgb, var(--color-safety) 55%, transparent);
+  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.5),
+    0 0 40px color-mix(in srgb, var(--color-safety) 25%, transparent);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.badge {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: var(--color-ocean);
+  border: 1px solid color-mix(in srgb, var(--color-ocean) 40%, transparent);
+  border-radius: 20px;
+  padding: 3px 8px;
+  white-space: nowrap;
+}
+.stepNo {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+}
+.dots {
+  display: flex;
+  gap: 5px;
+  flex: 1;
+}
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--border-medium);
+  transition: all 0.3s;
+}
+.dotDone {
+  background: color-mix(in srgb, var(--color-safety) 60%, transparent);
+}
+.dotActive {
+  background: var(--color-safety);
+  box-shadow: 0 0 8px var(--color-safety);
+  transform: scale(1.25);
+}
+.stop {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.stop:hover {
+  color: var(--color-crane);
+  border-color: color-mix(in srgb, var(--color-crane) 40%, transparent);
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0.5px;
+}
+.turn .title {
+  color: var(--color-safety);
+}
+.sub {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+  line-height: 1.5;
+}
+
+.progress {
+  margin-top: 10px;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.progressFill {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, var(--color-ocean), var(--color-safety));
+  border-radius: 2px;
+  animation: fill linear forwards;
+}
+.turn .progressFill {
+  background: linear-gradient(90deg, var(--color-safety), #8fe6c4);
+}
+@keyframes fill {
+  from { width: 0; }
+  to { width: 100%; }
+}

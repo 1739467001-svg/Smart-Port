@@ -3,11 +3,13 @@ import { WorkforceIntro } from './components/ui/WorkforceIntro';
 import { MetricsHUD } from './components/hud/MetricsHUD';
 import { ProcessFlowBar } from './components/hud/ProcessFlowBar';
 import { StowagePanel } from './components/hud/StowagePanel';
+import { TourCaption } from './components/hud/TourCaption';
 import { AgentPanel } from './components/panels/AgentPanel';
 import { AgentDetail } from './components/panels/AgentDetail';
 import { RoiPanel } from './components/panels/RoiPanel';
 import { useSceneManager } from './hooks/useSceneManager';
 import { useSimulation } from './hooks/useSimulation';
+import { useTour } from './hooks/useTour';
 import { useAppStore } from './stores/appStore';
 import styles from './App.module.css';
 
@@ -24,6 +26,7 @@ const SCENE_HINTS: Record<string, string> = {
 export default function App() {
   const { canvasRef } = useSceneManager();
   useSimulation();
+  useTour();
   const currentScene = useAppStore((s) => s.currentScene);
 
   return (
@@ -49,6 +52,9 @@ export default function App() {
 
           {/* Stowage optimizer control — only on the L3 single-container view */}
           {currentScene === 'container' && <StowagePanel />}
+
+          {/* 一键路演 narration — visible while the guided tour runs */}
+          <TourCaption />
 
           {/* 数字员工 detail page — opens when a marker is clicked */}
           <AgentDetail />

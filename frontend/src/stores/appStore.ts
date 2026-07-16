@@ -57,6 +57,13 @@ interface AppState {
   introOpen: boolean;
   dismissIntro: () => void;
 
+  // 一键路演 guided tour
+  tourActive: boolean;
+  tourStep: number;
+  startTour: () => void;
+  stopTour: () => void;
+  setTourStep: (n: number) => void;
+
   // Port metrics
   metrics: PortMetrics;
   updateMetrics: (partial: Partial<PortMetrics>) => void;
@@ -208,6 +215,13 @@ export const useAppStore = create<AppState>((set) => ({
   // 数字员工上岗 opening overlay — shown on load, front-and-centre for 路演
   introOpen: true,
   dismissIntro: () => set({ introOpen: false }),
+
+  // 一键路演 guided tour — auto-narrated L1→L2→L3 walkthrough
+  tourActive: false,
+  tourStep: 0,
+  startTour: () => set({ tourActive: true, tourStep: 0, introOpen: false, roiPanelOpen: false, agentDetailId: null }),
+  stopTour: () => set({ tourActive: false }),
+  setTourStep: (n) => set({ tourStep: n }),
 
   // Metrics
   metrics: initialMetrics,
