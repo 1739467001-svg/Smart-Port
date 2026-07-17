@@ -36,7 +36,7 @@ export function buildLandside(ctx: SceneContext, theme: PortTheme) {
   buildRoads(root);
   buildGate(root);
   buildWarehouse(root, theme);
-  buildRail(root);
+  buildRail(ctx);
   buildSkyline(root, theme);
   buildTrucks(ctx);
 }
@@ -168,28 +168,48 @@ function buildWarehouse(root: THREE.Group, theme: PortTheme) {
   root.add(group);
 }
 
-// ── Intermodal rail siding (铁路装卸线) ──
-function buildRail(root: THREE.Group) {
+// ── Intermodal rail siding (铁路装卸线 · 海铁联运) ──
+function buildRail(ctx: SceneContext) {
+  const { root } = ctx;
   const group = new THREE.Group();
-  group.position.set(300, 0, 300);
+  group.position.set(235, 0, 240);
+
+  // Concrete loading pad grounds the whole siding (it used to float on the land)
+  const pad = new THREE.Mesh(
+    new THREE.BoxGeometry(80, 0.6, 430),
+    new THREE.MeshStandardMaterial({ color: C.concrete, roughness: 0.85 })
+  );
+  pad.position.set(0, 0.3, 0);
+  pad.receiveShadow = true;
+  group.add(pad);
 
   const railMat = new THREE.MeshStandardMaterial({ color: C.rail, roughness: 0.4, metalness: 0.7 });
-  [-2, 2].forEach((x) => {
-    const rail = new THREE.Mesh(new THREE.BoxGeometry(1, 0.6, 360), railMat);
-    rail.position.set(x, 0.7, 0);
-    group.add(rail);
+
+  // Two parallel loading tracks
+  [-7, 7].forEach((tx) => {
+    [-1.3, 1.3].forEach((rx) => {
+      const rail = new THREE.Mesh(new THREE.BoxGeometry(1, 0.6, 400), railMat);
+      rail.position.set(tx + rx, 0.9, 0);
+      group.add(rail);
+    });
   });
-  // Sleepers
+  // Sleepers spanning both tracks
   const sleeperMat = new THREE.MeshStandardMaterial({ color: 0x1a1f29, roughness: 0.95 });
-  for (let z = -170; z <= 170; z += 14) {
-    const s = new THREE.Mesh(new THREE.BoxGeometry(8, 0.5, 2.4), sleeperMat);
-    s.position.set(0, 0.5, z);
+  for (let z = -190; z <= 190; z += 12) {
+    const s = new THREE.Mesh(new THREE.BoxGeometry(30, 0.5, 2.4), sleeperMat);
+    s.position.set(0, 0.75, z);
     group.add(s);
   }
+  // Gantry runway rails
+  [-18, 18].forEach((gx) => {
+    const runway = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.5, 400), railMat);
+    runway.position.set(gx, 0.7, 0);
+    group.add(runway);
+  });
 
-  // Rail wagons with containers
-  const palette = [0x3b8bd4, 0xe8593c, 0x5dcaa5, 0xf2a623];
-  for (let i = 0; i < 4; i++) {
+  // Container wagons filling the near track
+  const palette = [0x3b8bd4, 0xe8593c, 0x5dcaa5, 0xf2a623, 0x9b59b6, 0x2ecc71];
+  for (let i = 0; i < 6; i++) {
     const wagon = new THREE.Group();
     const flat = new THREE.Mesh(
       new THREE.BoxGeometry(9, 2, 26),
@@ -204,11 +224,69 @@ function buildRail(root: THREE.Group) {
     box.position.y = 7.3;
     box.castShadow = true;
     wagon.add(box);
-    wagon.position.set(0, 0, -135 + i * 30);
+    wagon.position.set(-7, 0, -150 + i * 30);
     group.add(wagon);
   }
 
+  // Locomotive at the head end — reads that the train is a train
+  const loco = new THREE.Group();
+  const body = new THREE.Mesh(
+    new THREE.BoxGeometry(9, 8, 30),
+    new THREE.MeshStandardMaterial({ color: 0xd35400, roughness: 0.5, metalness: 0.3 })
+  );
+  body.position.y = 5;
+  body.castShadow = true;
+  loco.add(body);
+  const cab = new THREE.Mesh(new THREE.BoxGeometry(9.4, 5, 11), new THREE.MeshStandardMaterial({ color: 0x2c3e50 }));
+  cab.position.set(0, 11, -7);
+  loco.add(cab);
+  const band = new THREE.Mesh(
+    new THREE.BoxGeometry(9.2, 1.6, 30),
+    new THREE.MeshStandardMaterial({ color: 0xf1c40f, emissive: 0xf1c40f, emissiveIntensity: 0.25 })
+  );
+  band.position.y = 3.2;
+  loco.add(band);
+  loco.position.set(-7, 0, 25);
+  group.add(loco);
+
+  // Rail-mounted gantry (轨道装卸桥) straddling both tracks, travelling along z
+  const gLegMat = new THREE.MeshStandardMaterial({ color: 0x4a6b8a, roughness: 0.5, metalness: 0.4 });
+  const gantry = new THREE.Group();
+  const GH = 24;
+  [-18, 18].forEach((gx) => {
+    [-4, 4].forEach((gz) => {
+      const leg = new THREE.Mesh(new THREE.BoxGeometry(2.2, GH, 2.2), gLegMat);
+      leg.position.set(gx, GH / 2, gz);
+      leg.castShadow = true;
+      gantry.add(leg);
+    });
+  });
+  const gGirder = new THREE.Mesh(new THREE.BoxGeometry(42, 2.6, 8), new THREE.MeshStandardMaterial({ color: 0x5b7fa0 }));
+  gGirder.position.set(0, GH + 1.3, 0);
+  gantry.add(gGirder);
+  const gTrolley = new THREE.Group();
+  gTrolley.add(new THREE.Mesh(new THREE.BoxGeometry(5, 2, 6), new THREE.MeshStandardMaterial({ color: 0xf2a623 })));
+  const gSpread = new THREE.Mesh(new THREE.BoxGeometry(9, 1, 24), new THREE.MeshStandardMaterial({ color: 0xdddddd, metalness: 0.5 }));
+  gSpread.position.y = -6;
+  gTrolley.add(gSpread);
+  gTrolley.position.set(0, GH, 0);
+  gantry.add(gTrolley);
+  group.add(gantry);
+
   root.add(group);
+
+  // Approach road linking the siding back to the terminal's gate road
+  const approach = new THREE.Mesh(
+    new THREE.BoxGeometry(235, 0.4, 16),
+    new THREE.MeshStandardMaterial({ color: C.road, roughness: 0.95 })
+  );
+  approach.position.set(118, 0.5, 240);
+  root.add(approach);
+
+  ctx.addAnimation('rail-gantry', (t) => {
+    gantry.position.z = Math.sin(t * 0.14) * 150;
+    gTrolley.position.x = Math.sin(t * 0.5) * 14;
+  });
 }
 
 // ── Distant city / industrial skyline on the horizon ──

@@ -5,6 +5,7 @@ import { PORT_THEMES, type PortTheme } from './themes';
 import { buildOcean } from '../ocean/Ocean';
 import { buildLandside, buildPortLights } from './Landside';
 import { buildContainerFlow } from './ContainerFlow';
+import { mulberry32 } from '../common/rng';
 import { useAppStore } from '../../stores/appStore';
 
 /* ═══════════════════════════════════════════════
@@ -58,6 +59,7 @@ export class PortScene implements SceneModule {
     buildShip(ctx);
     buildQuayCranes(ctx, this.layout);
     buildContainerYard(ctx, this.layout);
+    buildYardCranes(ctx, this.layout);
     buildAGVs(ctx, this.layout);
     buildContainerFlow(ctx);
     buildAgentMarkers(ctx);
@@ -219,47 +221,74 @@ function buildBerth(root: THREE.Group) {
 // ── Ship ──
 function buildShip(ctx: SceneContext) {
   const { root } = ctx;
+  const rng = mulberry32(20240717);
   const group = new THREE.Group();
   group.userData = { id: 'vessel-001', type: 'vessel' };
 
-  const hullGeo = new THREE.BoxGeometry(170, 18, 30);
-  const hullMat = new THREE.MeshStandardMaterial({ color: 0x1a2a3a, roughness: 0.7, metalness: 0.3 });
-  const hull = new THREE.Mesh(hullGeo, hullMat);
+  // Hull — a lighter navy that clearly reads against the dark sea (the old
+  // near-black hull vanished into the water, so the deck boxes looked like
+  // they were floating).
+  const hullMat = new THREE.MeshStandardMaterial({ color: 0x35526f, roughness: 0.6, metalness: 0.35 });
+  const hull = new THREE.Mesh(new THREE.BoxGeometry(170, 18, 30), hullMat);
   hull.position.y = 2;
+  hull.castShadow = true;
   group.add(hull);
 
-  const bowGeo = new THREE.ConeGeometry(15, 30, 4);
-  const bow = new THREE.Mesh(bowGeo, hullMat);
+  // Red boot-topping stripe at the waterline — the visual cue that says "ship".
+  const stripe = new THREE.Mesh(
+    new THREE.BoxGeometry(171, 3, 31),
+    new THREE.MeshStandardMaterial({ color: 0xc0392b, roughness: 0.6 })
+  );
+  stripe.position.y = -1.2;
+  group.add(stripe);
+
+  const bow = new THREE.Mesh(new THREE.ConeGeometry(15, 30, 4), hullMat);
   bow.rotation.z = -Math.PI / 2;
   bow.rotation.y = Math.PI / 4;
   bow.position.set(95, 5, 0);
   group.add(bow);
 
-  const deckGeo = new THREE.BoxGeometry(165, 1.5, 28);
-  const deckMat = new THREE.MeshStandardMaterial({ color: 0x2a3a4a, roughness: 0.8 });
-  const deck = new THREE.Mesh(deckGeo, deckMat);
+  const deck = new THREE.Mesh(
+    new THREE.BoxGeometry(165, 1.5, 28),
+    new THREE.MeshStandardMaterial({ color: 0x2a3a4a, roughness: 0.8 })
+  );
   deck.position.y = 11.5;
   group.add(deck);
 
-  const bridgeGeo = new THREE.BoxGeometry(22, 22, 18);
-  const bridge = new THREE.Mesh(bridgeGeo, new THREE.MeshStandardMaterial({ color: 0x3a4a5a }));
-  bridge.position.set(-62, 23, 0);
+  // Aft superstructure + funnel so the silhouette reads as a real vessel.
+  const bridge = new THREE.Mesh(new THREE.BoxGeometry(22, 22, 26), new THREE.MeshStandardMaterial({ color: 0x8a95a3, roughness: 0.7 }));
+  bridge.position.set(-68, 23, 0);
   group.add(bridge);
+  const funnel = new THREE.Mesh(new THREE.CylinderGeometry(4, 5, 13, 12), new THREE.MeshStandardMaterial({ color: 0x2b3742 }));
+  funnel.position.set(-76, 40, 0);
+  group.add(funnel);
+  const funnelBand = new THREE.Mesh(new THREE.CylinderGeometry(4.2, 4.2, 3.5, 12), new THREE.MeshStandardMaterial({ color: 0xc0392b }));
+  funnelBand.position.set(-76, 42, 0);
+  group.add(funnelBand);
 
-  const containerGeo = new THREE.BoxGeometry(11.5, 8.5, 5.2);
-  for (let r = 0; r < 5; r++) {
-    for (let c = 0; c < 9; c++) {
-      const stack = 2 + Math.floor(Math.random() * 2);
+  // Deck containers — seeded (stable across rebuilds), seated ON the deck
+  // (deck top ≈ y 12.25, so first tier bottom sits exactly there), forward of
+  // the bridge.
+  const DECK_TOP = 12.25;
+  const CH = 8.5;
+  const containerGeo = new THREE.BoxGeometry(11.5, CH, 5.2);
+  for (let c = 0; c < 9; c++) {
+    for (let r = 0; r < 5; r++) {
+      const stack = 2 + Math.floor(rng() * 2);
       for (let l = 0; l < stack; l++) {
-        const color = COLORS.containers[Math.floor(Math.random() * COLORS.containers.length)];
+        const color = COLORS.containers[Math.floor(rng() * COLORS.containers.length)];
         const box = new THREE.Mesh(containerGeo, new THREE.MeshStandardMaterial({ color, roughness: 0.55 }));
-        box.position.set(-25 + c * 13, 13 + l * 8.8, -10 + r * 5.5);
+        box.position.set(-48 + c * 15, DECK_TOP + CH / 2 + l * (CH + 0.3), -11 + r * 5.5);
+        box.castShadow = true;
         group.add(box);
       }
     }
   }
 
-  group.position.set(0, 0, -135);
+  // Berth the vessel snug against the quay wall (near side ≈ z -105, just off
+  // the quay edge at ~z -98) so it reads as "at berth being worked", not a
+  // detached hull far out at sea.
+  group.position.set(0, 0, -120);
   root.add(group);
   ctx.registerClickable(group);
 
@@ -274,7 +303,9 @@ function buildQuayCranes(ctx: SceneContext, layout: PortLayout) {
   const { root } = ctx;
   layout.craneXPositions.forEach((x, i) => {
     const group = new THREE.Group();
-    group.position.set(x, 0, -88);
+    // z = -82 keeps both rails on the wharf (seaward leg ≈ z -96, the quay
+    // edge) instead of the old -88 that put the seaward legs out over water.
+    group.position.set(x, 0, -82);
     group.userData = { id: `qc-${i + 1}`, type: 'crane' };
 
     const legMat = new THREE.MeshStandardMaterial({ color: COLORS.crane, roughness: 0.5, metalness: 0.4 });
@@ -335,6 +366,7 @@ function buildQuayCranes(ctx: SceneContext, layout: PortLayout) {
 // ── Container Yard (InstancedMesh for performance, clickable blocks) ──
 function buildContainerYard(ctx: SceneContext, layout: PortLayout) {
   const { root } = ctx;
+  const rng = mulberry32(90210); // seeded → the yard looks identical on every rebuild
   const sz = layout.containerSize;
   const containerGeo = new THREE.BoxGeometry(sz.length, sz.height, sz.depth);
 
@@ -348,9 +380,9 @@ function buildContainerYard(ctx: SceneContext, layout: PortLayout) {
 
     for (let row = 0; row < block.rows; row++) {
       for (let col = 0; col < block.bays; col++) {
-        const stack = Math.floor(Math.random() * 3) + 1;
+        const stack = Math.floor(rng() * 3) + 1;
         for (let level = 0; level < stack; level++) {
-          const color = COLORS.containers[Math.floor(Math.random() * COLORS.containers.length)];
+          const color = COLORS.containers[Math.floor(rng() * COLORS.containers.length)];
           const m = new THREE.Matrix4();
           m.setPosition(ox + col * 14, 4.5 + level * 9, oz + row * 7);
           instancesPerColor.get(color)!.push(m);
@@ -382,11 +414,16 @@ function buildContainerYard(ctx: SceneContext, layout: PortLayout) {
   });
 }
 
-// ── AGVs ──
+// ── AGVs (shuttle the apron transfer zone on tidy lanes) ──
 function buildAGVs(ctx: SceneContext, layout: PortLayout) {
   const { root } = ctx;
+  const rng = mulberry32(1337);
   const agvGeo = new THREE.BoxGeometry(5.5, 1.8, 2.8);
   const agvMat = new THREE.MeshStandardMaterial({ color: COLORS.agv, roughness: 0.4, metalness: 0.5 });
+
+  // Discrete lanes in the apron (between the quay ~z-55 and the yard ~z38),
+  // so AGVs shuttle in straight lines instead of wandering through everything.
+  const LANES = [-38, -20, -2, 16];
 
   for (let i = 0; i < layout.agvCount; i++) {
     const group = new THREE.Group();
@@ -400,18 +437,85 @@ function buildAGVs(ctx: SceneContext, layout: PortLayout) {
     headlight.position.set(3, 0.4, 0);
     group.add(headlight);
 
-    group.position.set(-80 + i * 28, 1.5, -20 + Math.random() * 40);
+    const lane = LANES[i % LANES.length];
+    group.position.set(rng() * 160 - 80, 1.5, lane);
     root.add(group);
 
-    const speed = 0.3 + Math.random() * 0.35;
-    const phase = Math.random() * Math.PI * 2;
+    const speed = 0.28 + rng() * 0.22;
+    const phase = rng() * Math.PI * 2;
     ctx.addAnimation(`agv-${i}`, (t) => {
       const p = t * speed + phase;
-      group.position.x = Math.sin(p * 0.5) * 85;
-      group.position.z = -15 + Math.cos(p * 0.3 + i) * 35;
-      group.rotation.y = Math.cos(p * 0.5) * 0.5 + Math.PI / 2;
+      group.position.x = Math.sin(p) * 88; // ping-pong along the lane
+      group.position.z = lane;
+      // Face the direction of travel (box long axis is +x)
+      group.rotation.y = Math.cos(p) >= 0 ? 0 : Math.PI;
     });
   }
+}
+
+// ── Yard gantry cranes (轨道吊 / RMG) — straddle each yard block ──
+function buildYardCranes(ctx: SceneContext, layout: PortLayout) {
+  const { root } = ctx;
+  const legMat = new THREE.MeshStandardMaterial({ color: 0x4a6b8a, roughness: 0.5, metalness: 0.4 });
+  const girderMat = new THREE.MeshStandardMaterial({ color: 0x5b7fa0, roughness: 0.45, metalness: 0.45 });
+  const railMat = new THREE.MeshStandardMaterial({ color: 0x2a3140, roughness: 0.5, metalness: 0.6 });
+  const H = 30; // portal height clears the ~22-high stacks
+
+  layout.yardBlocks.forEach((block, bi) => {
+    const [ox, oz] = block.origin;
+    const lenX = block.bays * 14; // travel axis
+    const widZ = block.rows * 7; // straddle span
+    const zA = oz - 9; // near gantry rail (just outside the stacks)
+    const zB = oz + widZ + 2; // far gantry rail
+    const midZ = (zA + zB) / 2;
+    const xMid = ox + lenX / 2 - 7;
+    const xAmp = lenX / 2 - 6;
+
+    // Ground rails the gantry runs on (static)
+    [zA, zB].forEach((z) => {
+      const rail = new THREE.Mesh(new THREE.BoxGeometry(lenX + 18, 0.6, 1.4), railMat);
+      rail.position.set(xMid, 0.7, z);
+      root.add(rail);
+    });
+
+    // Portal (legs + girder + trolley) travels along x
+    const portal = new THREE.Group();
+    [-6, 6].forEach((lx) => {
+      [zA, zB].forEach((z) => {
+        const leg = new THREE.Mesh(new THREE.BoxGeometry(2.4, H, 2.4), legMat);
+        leg.position.set(lx, H / 2, z);
+        leg.castShadow = true;
+        portal.add(leg);
+      });
+    });
+    const girder = new THREE.Mesh(new THREE.BoxGeometry(13, 3, zB - zA + 4), girderMat);
+    girder.position.set(0, H + 1.5, midZ);
+    girder.castShadow = true;
+    portal.add(girder);
+
+    // Trolley + spreader hover just above the stacks, tracking across z
+    const trolley = new THREE.Group();
+    trolley.add(new THREE.Mesh(new THREE.BoxGeometry(6, 2.4, 6), new THREE.MeshStandardMaterial({ color: 0xf2a623 })));
+    const cable = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 5, 4), new THREE.MeshStandardMaterial({ color: 0x888888 }));
+    cable.position.y = -3;
+    trolley.add(cable);
+    const spreader = new THREE.Mesh(
+      new THREE.BoxGeometry(13, 1, 6),
+      new THREE.MeshStandardMaterial({ color: 0xdddddd, metalness: 0.5 })
+    );
+    spreader.position.y = -6; // world y ≈ 24, above the 22-high stacks
+    trolley.add(spreader);
+    trolley.position.set(0, H, midZ);
+    portal.add(trolley);
+
+    portal.position.set(xMid, 0, 0);
+    root.add(portal);
+
+    ctx.addAnimation(`yard-crane-${bi}`, (t) => {
+      portal.position.x = xMid + Math.sin(t * 0.16 + bi * 1.7) * xAmp;
+      trolley.position.z = midZ + Math.sin(t * 0.5 + bi) * ((zB - zA) / 2 - 3);
+    });
+  });
 }
 
 // ── 数字员工 Markers ──

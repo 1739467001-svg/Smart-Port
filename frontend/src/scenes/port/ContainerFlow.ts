@@ -43,14 +43,14 @@ const EXPORT_SEGMENTS: Segment[] = [
   { stage: '堆场堆存', from: [-40, 4.5, 55], to: [-40, 4.5, 55], dur: 3, carrier: 'idle' },
   { stage: '装上AGV', from: [-40, 4.5, 55], to: [-40, 6, 40], dur: 2, carrier: 'crane' },
   { stage: 'AGV转运至岸边', from: [-40, 6, 40], to: [0, 6, -68], dur: 5, carrier: 'agv' },
-  { stage: '岸桥装船', from: [0, 6, -68], to: [0, 21, -128], dur: 4, carrier: 'crane' },
-  { stage: '已装船', from: [0, 21, -128], to: [0, 21, -128], dur: 6, carrier: 'idle' },
+  { stage: '岸桥装船', from: [0, 6, -68], to: [0, 18, -116], dur: 4, carrier: 'crane' },
+  { stage: '已装船', from: [0, 18, -116], to: [0, 18, -116], dur: 6, carrier: 'idle' },
 ];
 
 // ── IMPORT: a box is discharged from the ship and delivered inland ──
 const IMPORT_SEGMENTS: Segment[] = [
-  { stage: '船舶在泊', from: [52, 21, -132], to: [52, 21, -132], dur: 5, carrier: 'idle' },
-  { stage: '岸桥卸船', from: [52, 21, -132], to: [85, 6, -68], dur: 4, carrier: 'crane' },
+  { stage: '船舶在泊', from: [52, 18, -118], to: [52, 18, -118], dur: 5, carrier: 'idle' },
+  { stage: '岸桥卸船', from: [52, 18, -118], to: [85, 6, -68], dur: 4, carrier: 'crane' },
   { stage: 'AGV转运至堆场', from: [85, 6, -68], to: [70, 6, 40], dur: 5, carrier: 'agv' },
   { stage: '轨道吊入场', from: [70, 6, 40], to: [70, 4.5, 55], dur: 2, carrier: 'crane' },
   { stage: '进口堆存', from: [70, 4.5, 55], to: [70, 4.5, 55], dur: 3, carrier: 'idle' },
