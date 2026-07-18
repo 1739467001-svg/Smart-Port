@@ -49,8 +49,10 @@ const EXPORT_SEGMENTS: Segment[] = [
 
 // ── IMPORT: a box is discharged from the ship and delivered inland ──
 const IMPORT_SEGMENTS: Segment[] = [
-  { stage: '船舶在泊', from: [52, 18, -118], to: [52, 18, -118], dur: 5, carrier: 'idle' },
-  { stage: '岸桥卸船', from: [52, 18, -118], to: [85, 6, -68], dur: 4, carrier: 'crane' },
+  // Discharge stays at the quay crane's x (85) so the crane trolley can sit
+  // over the box and hoist it straight off the ship.
+  { stage: '船舶在泊', from: [85, 18, -116], to: [85, 18, -116], dur: 5, carrier: 'idle' },
+  { stage: '岸桥卸船', from: [85, 18, -116], to: [85, 6, -68], dur: 4, carrier: 'crane' },
   { stage: 'AGV转运至堆场', from: [85, 6, -68], to: [70, 6, 40], dur: 5, carrier: 'agv' },
   { stage: '轨道吊入场', from: [70, 6, 40], to: [70, 4.5, 55], dur: 2, carrier: 'crane' },
   { stage: '进口堆存', from: [70, 4.5, 55], to: [70, 4.5, 55], dur: 3, carrier: 'idle' },
@@ -61,7 +63,13 @@ const IMPORT_SEGMENTS: Segment[] = [
 const PALETTE = [0x3b8bd4, 0xe8593c, 0x5dcaa5, 0xf2a623, 0x9b59b6, 0x2ecc71, 0x1abc9c];
 const SPEED = 1.35;
 
-export function buildContainerFlow(ctx: SceneContext) {
+/** Lets the quay cranes track whatever container they are currently working,
+    so the trolley + hoist cable engage the real flow box instead of miming. */
+export interface FlowHandle {
+  craneHook(craneX: number): { z: number; y: number } | null;
+}
+
+export function buildContainerFlow(ctx: SceneContext): FlowHandle {
   const units: FlowUnit[] = [];
 
   const exportCycle = totalDuration(EXPORT_SEGMENTS);
@@ -87,6 +95,17 @@ export function buildContainerFlow(ctx: SceneContext) {
   ctx.addAnimation('container-flow', (elapsed) => {
     for (const u of units) u.update(elapsed * SPEED);
   });
+
+  return {
+    craneHook(craneX: number) {
+      for (const u of units) {
+        if (u.craneActive && Math.abs(u.group.position.x - craneX) < 8) {
+          return { z: u.group.position.z, y: u.group.position.y };
+        }
+      }
+      return null;
+    },
+  };
 }
 
 function totalDuration(segs: Segment[]) {
@@ -96,6 +115,7 @@ function totalDuration(segs: Segment[]) {
 class FlowUnit {
   group: THREE.Group;
   offset = 0;
+  craneActive = false; // true while a quay/yard crane carries this box
 
   private segs: Segment[];
   private cycle: number;
@@ -164,6 +184,7 @@ class FlowUnit {
     this.truck.visible = seg.carrier === 'truck';
     this.agv.visible = seg.carrier === 'agv';
     this.crane.visible = seg.carrier === 'crane';
+    this.craneActive = seg.carrier === 'crane';
   }
 }
 
@@ -214,21 +235,15 @@ function makeAGV(): THREE.Group {
 
 function makeSpreader(): THREE.Group {
   const g = new THREE.Group();
-  // Spreader bar locked on top of the box
+  // Spreader bar locked on top of the box. The hoist cable up to the trolley
+  // is now drawn by the quay crane itself (see buildQuayCranes), so the box no
+  // longer carries its own dangling cables.
   const bar = new THREE.Mesh(
     new THREE.BoxGeometry(13, 1.2, 6),
     new THREE.MeshStandardMaterial({ color: 0xdddddd, roughness: 0.4, metalness: 0.6 })
   );
   bar.position.y = HALF + 0.8;
   g.add(bar);
-
-  // Hoist cables rising toward the (implied) trolley
-  const cableMat = new THREE.MeshStandardMaterial({ color: 0x888888 });
-  [[-5, -2], [5, -2], [-5, 2], [5, 2]].forEach(([cx, cz]) => {
-    const cable = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 22, 4), cableMat);
-    cable.position.set(cx, HALF + 12, cz);
-    g.add(cable);
-  });
   return g;
 }
 

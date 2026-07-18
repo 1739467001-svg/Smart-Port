@@ -4,7 +4,7 @@ import { DEFAULT_PORT, type PortLayout } from './portLayout';
 import { PORT_THEMES, type PortTheme } from './themes';
 import { buildOcean } from '../ocean/Ocean';
 import { buildLandside, buildPortLights } from './Landside';
-import { buildContainerFlow } from './ContainerFlow';
+import { buildContainerFlow, type FlowHandle } from './ContainerFlow';
 import { mulberry32 } from '../common/rng';
 import { useAppStore } from '../../stores/appStore';
 
@@ -57,11 +57,12 @@ export class PortScene implements SceneModule {
     buildGround(ctx.root);
     buildBerth(ctx.root);
     buildShip(ctx);
-    buildQuayCranes(ctx, this.layout);
+    // Flow is built first so the quay cranes can track the boxes they work.
+    const flow = buildContainerFlow(ctx);
+    buildQuayCranes(ctx, this.layout, flow);
     buildContainerYard(ctx, this.layout);
     buildYardCranes(ctx, this.layout);
     buildAGVs(ctx, this.layout);
-    buildContainerFlow(ctx);
     buildAgentMarkers(ctx);
     buildPortLights(ctx, theme);
   }
@@ -299,7 +300,7 @@ function buildShip(ctx: SceneContext) {
 }
 
 // ── Quay Cranes ──
-function buildQuayCranes(ctx: SceneContext, layout: PortLayout) {
+function buildQuayCranes(ctx: SceneContext, layout: PortLayout, flow: FlowHandle) {
   const { root } = ctx;
   layout.craneXPositions.forEach((x, i) => {
     const group = new THREE.Group();
@@ -329,20 +330,16 @@ function buildQuayCranes(ctx: SceneContext, layout: PortLayout) {
     top.position.set(0, 69, 10);
     group.add(top);
 
+    // Trolley + a dynamic hoist cable. The spreader itself rides on the flow
+    // container, so the cable just extends from the trolley down to whatever
+    // box this crane is currently working (unit height 1, scaled each frame).
     const trolley = new THREE.Group();
     trolley.add(new THREE.Mesh(new THREE.BoxGeometry(7, 2.5, 7), new THREE.MeshStandardMaterial({ color: 0xffa500 })));
     const cable = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.25, 0.25, 48, 4),
-      new THREE.MeshStandardMaterial({ color: 0x888888 })
+      new THREE.CylinderGeometry(0.45, 0.45, 1, 6),
+      new THREE.MeshStandardMaterial({ color: 0xb0b4bc, metalness: 0.3 })
     );
-    cable.position.y = -25;
     trolley.add(cable);
-    const spreader = new THREE.Mesh(
-      new THREE.BoxGeometry(13, 1.2, 5.5),
-      new THREE.MeshStandardMaterial({ color: 0xdddddd, metalness: 0.5 })
-    );
-    spreader.position.y = -49;
-    trolley.add(spreader);
     trolley.position.set(0, 62, -18);
     group.add(trolley);
 
@@ -356,8 +353,24 @@ function buildQuayCranes(ctx: SceneContext, layout: PortLayout) {
     root.add(group);
     ctx.registerClickable(group);
 
+    const craneX = x;
     ctx.addAnimation(`crane-trolley-${i}`, (t) => {
-      trolley.position.z = -18 + Math.sin(t * 0.35 + i * 2.1) * 28;
+      const hook = flow.craneHook(craneX);
+      let localZ: number;
+      let boxTopY: number;
+      if (hook) {
+        // Track the worked box: trolley over it (world z → crane-local, group
+        // sits at z -82), cable reaching down to the top of the container.
+        localZ = hook.z + 82;
+        boxTopY = hook.y + 4.25;
+      } else {
+        localZ = -18 + Math.sin(t * 0.35 + i * 2.1) * 24; // idle glide along the boom
+        boxTopY = 54; // cable retracted
+      }
+      trolley.position.z = localZ;
+      const L = Math.max(3, 62 - boxTopY); // trolley sits at world y ≈ 62
+      cable.scale.y = L;
+      cable.position.y = -L / 2;
       (light.material as THREE.MeshStandardMaterial).emissiveIntensity = 1.5 + Math.sin(t * 3 + i) * 0.5;
     });
   });
