@@ -13,6 +13,7 @@ export function TopBar() {
   const startTour = useAppStore((s) => s.startTour);
   const stopTour = useAppStore((s) => s.stopTour);
   const openAssistant = useAppStore((s) => s.openAssistant);
+  const openBizPanel = useAppStore((s) => s.openBizPanel);
 
   return (
     <header className={styles.bar}>
@@ -71,6 +72,14 @@ export function TopBar() {
           title="向数字员工提问（离线，答案取自实时数据）"
         >
           💬 问数字员工
+        </button>
+
+        <button
+          className={styles.bizBtn}
+          onClick={openBizPanel}
+          title="商业计划与落地承诺"
+        >
+          📈 商业计划
         </button>
 
         <button

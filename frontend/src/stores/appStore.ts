@@ -69,6 +69,11 @@ interface AppState {
   openAssistant: () => void;
   closeAssistant: () => void;
 
+  // 商业计划 & 落地承诺 panel
+  bizPanelOpen: boolean;
+  openBizPanel: () => void;
+  closeBizPanel: () => void;
+
   // Port metrics
   metrics: PortMetrics;
   updateMetrics: (partial: Partial<PortMetrics>) => void;
@@ -232,6 +237,11 @@ export const useAppStore = create<AppState>((set) => ({
   assistantOpen: false,
   openAssistant: () => set({ assistantOpen: true }),
   closeAssistant: () => set({ assistantOpen: false }),
+
+  // 商业计划 & 落地承诺 panel
+  bizPanelOpen: false,
+  openBizPanel: () => set({ bizPanelOpen: true }),
+  closeBizPanel: () => set({ bizPanelOpen: false }),
 
   // Metrics
   metrics: initialMetrics,
